@@ -1,5 +1,4 @@
-#include "mainwindow.h"
-#include <QPushButton>
+﻿#include "mainwindow.h"
 #include <QDateTime>
 #include <QRandomGenerator>
 #include <QDebug>
@@ -13,20 +12,17 @@ MainWindow::MainWindow(QWidget *parent)
     setCentralWidget(new QWidget(this));
     centralWidget()->setLayout(m_mainLayout);
 
-    //Создаём кнопки и добавляем их в виджеты
-    m_timeButton = new QPushButton(this);
-    m_createButton = new QPushButton(this);
-    m_deleteButton = new QPushButton(this);
+    //Создаём кнопки
+    m_timeButton = new QPushButton("Время",this);
+    m_createButton = new QPushButton("Создать",this);
+    m_deleteButton = new QPushButton("Удалить",this);
     m_rgbButton = nullptr;
+
+    //Добавляем их в layout
     m_mainLayout->addWidget(m_timeButton);
     m_horizontalLayout->addWidget(m_createButton);
     m_horizontalLayout->addWidget(m_deleteButton);
     m_mainLayout->addLayout(m_horizontalLayout);
-
-    //Начальная настройка отображения кнопок
-    m_timeButton->setText("Время");
-    m_createButton->setText("Создать");
-    m_deleteButton->setText("Удалить");
 
     //Подключение сигнал-слотов
     connect(m_createButton, &QPushButton::clicked, this, &MainWindow::createButton);
@@ -59,7 +55,7 @@ void MainWindow::printTime()
 
 void MainWindow::changeColor()
 {
-    const QColor newColor{QRandomGenerator::global()->bounded(255),QRandomGenerator::global()->bounded(255),QRandomGenerator::global()->bounded(255)};
+    const QColor newColor(QRandomGenerator::global()->generate());
     if (newColor.isValid()) {
         const QString background = QString("background-color: %1").arg(newColor.name());
         m_rgbButton->setText(newColor.name());
