@@ -16,36 +16,36 @@ MainWindow::MainWindow(QWidget *parent)
     m_timeButton = new QPushButton("Время",this);
     m_createButton = new QPushButton("Создать",this);
     m_deleteButton = new QPushButton("Удалить",this);
-    m_rgbButton = nullptr;
+    m_rgbButton = new QPushButton(this);
 
     //Добавляем их в layout
     m_mainLayout->addWidget(m_timeButton);
     m_horizontalLayout->addWidget(m_createButton);
     m_horizontalLayout->addWidget(m_deleteButton);
     m_mainLayout->addLayout(m_horizontalLayout);
+    m_mainLayout->addWidget(m_rgbButton);
+
+    m_rgbButton->hide();
 
     //Подключение сигнал-слотов
     connect(m_createButton, &QPushButton::clicked, this, &MainWindow::createButton);
     connect(m_deleteButton, &QPushButton::clicked, this, &MainWindow::deleteButton);
     connect(m_timeButton, &QPushButton::clicked, this, &MainWindow::printTime);
+    connect(m_rgbButton, &QPushButton::clicked, this, &MainWindow::changeColor);
 }
 
 void MainWindow::createButton()
 {
-    if (m_rgbButton == nullptr) {
-        m_rgbButton = new QPushButton(this);
-        connect(m_rgbButton, &QPushButton::clicked, this, &MainWindow::changeColor, Qt::UniqueConnection);
-        m_mainLayout->addWidget(m_rgbButton);
+    if (m_rgbButton->isHidden()) {
         changeColor();
+        m_rgbButton->show();
     }
 }
 
 void MainWindow::deleteButton()
 {
-    if (m_rgbButton != nullptr) {
-        delete m_rgbButton;
-        m_rgbButton = nullptr;
-    }
+    if (!m_rgbButton->isHidden())
+        m_rgbButton->hide();
 }
 
 void MainWindow::printTime()
