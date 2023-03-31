@@ -1,69 +1,57 @@
-﻿#include "mainwindow.h"
-#include <QDateTime>
+#include "mainwindow.h"
 #include <QRandomGenerator>
+#include <QTimer>
+#include <QPushButton>
 #include <QDebug>
+#include <QPalette>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    //Создаём компоновщики
-    m_mainLayout = new QVBoxLayout();
-    m_horizontalLayout = new QHBoxLayout();
+    QPalette color;
+    color.setColor(QPalette::Window, Qt::red);
     setCentralWidget(new QWidget(this));
-    centralWidget()->setLayout(m_mainLayout);
 
-    //Создаём кнопки
-    m_timeButton = new QPushButton("Время",this);
-    m_createButton = new QPushButton("Создать",this);
-    m_deleteButton = new QPushButton("Удалить",this);
-    m_rgbButton = new QPushButton(this);
+    QTimer *timer = new QTimer(this);
 
-    //Добавляем их в layout
-    m_mainLayout->addWidget(m_timeButton);
-    m_horizontalLayout->addWidget(m_createButton);
-    m_horizontalLayout->addWidget(m_deleteButton);
-    m_mainLayout->addLayout(m_horizontalLayout);
-    m_mainLayout->addWidget(m_rgbButton);
+    connect(timer,&QTimer::timeout,[this, timer, color](){
+        QPushButton *button = new QPushButton(this);
+        QTimer *buttonTimer = new QTimer(this);
 
-    m_rgbButton->hide();
+        const int x = QRandomGenerator::global()->bounded(0,width());
+        const int y = QRandomGenerator::global()->bounded(0,100);
+        const int speed = QRandomGenerator::global()->bounded(1,5);
 
-    //Подключение сигнал-слотов
-    connect(m_createButton, &QPushButton::clicked, this, &MainWindow::createButton);
-    connect(m_deleteButton, &QPushButton::clicked, this, &MainWindow::deleteButton);
-    connect(m_timeButton, &QPushButton::clicked, this, &MainWindow::printTime);
-    connect(m_rgbButton, &QPushButton::clicked, this, &MainWindow::changeColor);
-}
+        button->setFixedSize(25,25);
 
-void MainWindow::createButton()
-{
-    if (m_rgbButton->isHidden()) {
-        changeColor();
-        m_rgbButton->show();
-    }
-}
+        connect(buttonTimer, &QTimer::timeout, [this, button, speed, color]() {
+            if (button->underMouse())
+                button->move(button->x(), button->y() + 2*speed);
+            else
+                button->move(button->x(), button->y() + speed);
 
-void MainWindow::deleteButton()
-{
-    if (!m_rgbButton->isHidden())
-        m_rgbButton->hide();
-}
+            if (button->y() + 25 >= height()) {
+                setWindowTitle("YOU LOSE!");
+                setPalette(color);
+            }
+        });
 
-void MainWindow::printTime()
-{
-    qDebug() << QDateTime::currentDateTime().toString("dd.MM HH::mm::ss") << '\n';
-}
+        connect(button, &QPushButton::clicked,[button]{
+            button->close();
+        });
 
-void MainWindow::changeColor()
-{
-    const QColor newColor(QRandomGenerator::global()->generate());
-    if (newColor.isValid()) {
-        const QString background = QString("background-color: %1").arg(newColor.name());
-        m_rgbButton->setText(newColor.name());
-        m_rgbButton->setStyleSheet(background);
-    }
+        button->setGeometry(x, y, button->width(), button->height());
+        button->show();
+
+        const int interval = QRandomGenerator::global()->bounded(100,1000);
+        timer->start(interval);
+        buttonTimer->start(100);
+    });
+    timer->start(0);
 }
 
 MainWindow::~MainWindow()
 {
 
 }
+
