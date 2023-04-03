@@ -44,7 +44,10 @@ else()
 endif()
 
 target_link_libraries(lesson_final PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
-
+target_compile_options(lesson_final PRIVATE -Wall -Wextra -Wformat -Wformat-security -Werror)
+set(SANITIZERS_FLAGS -fsanitize=undefined -fsanitize=address)
+target_compile_options(lesson_final PRIVATE ${SANITIZERS_FLAGS})
+target_link_options(lesson_final PRIVATE ${SANITIZERS_FLAGS})
 set_target_properties(lesson_final PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
